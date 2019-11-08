@@ -9,6 +9,7 @@ from PIL import Image
 from django.http import HttpResponse
 from django.shortcuts import render
 
+print("HERE TENSORFLOW BEGINS....................")
 mnist = tf.keras.datasets.mnist
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 x_train, x_test = x_train/255.0, x_test/255.0
@@ -30,18 +31,22 @@ model.fit(x_train, y_train, epochs=5)
 loss, acc = model.evaluate(x_test, y_test)
 print(f"Test Loss: {loss} and Test Acc: {acc}")
 
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>XXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
 def image_classifier(request):
-
+    print("REQUEST CAME>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    print("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL", request.method)
     if request.method == "POST":
         data_uri = request.POST['imgBase64']
         num_array = convert_base64_to_numpy_array(data_uri)  # converts base64 image to numpy image
         num_array = numpy.expand_dims(num_array, axis=-1)
         prediction = model.predict(numpy.array([num_array]))
         prediction = numpy.argmax(prediction)
+        print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTttt", prediction)
         return HttpResponse(prediction)
 
     return render(request, 'image_classifier/index.html')
+
 
 def convert_base64_to_numpy_array(data_uri):
     dimensions = (28, 28)
