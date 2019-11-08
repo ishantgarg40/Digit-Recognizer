@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Digit Recognizer</title>
+    <style>
+        *{
+   margin:0;
+   user-select: none;
+   -webkit-user-select: none;
+   -moz-user-select: none;
+   font-family: Georgia, sans-serif;
+}
+canvas{
+   cursor: crosshair;
+   border:black solid 1px;
+
+}
+#clr div{
+   cursor:pointer;
+   width:20px;
+   height:20px;
+   float:left;
+}
+
+#container{
+margin-left: 38%;
+display:flex;
+flex-direction: row;
+}
+
+
+#result{
+margin-top: 50px;
+margin-left: 38%;
+}
+    </style>
+    <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.js" integrity="sha256-P8jY+MCe6X2cjNSmF4rQvZIanL5VwUUT4MBnOMncjRU=" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script>
+        function sendImage(){
+        var canvas = document.getElementById("can");
+        var image = canvas.toDataURL();
+         var token = Cookies.get('csrftoken');
+        $.ajaxSetup({
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('X-CSRFToken', token);
+        }
+    });
+
+        $.ajax({
+    type: "POST",
+    url: "http://localhost:8000/tensorflow/",
+    data: {
+     imgBase64: image
+    },
+    success: function(json){
+    document.getElementById("result").innerHTML = `The Digit was ${json}`
+    },
+    error: function(xhr, errrmsg, err){
+    console.log(errmsg);
+    console.log(err);
+    }
+})
+        }
+          $(document).ready(function(){
+            var clic=false;
+            var xCoord,yCoord="";
+            var canvas=document.getElementById("can");
+            var cntx=canvas.getContext("2d");
+            cntx.strokeStyle="white";
+            cntx.lineWidth=10;
+            cntx.lineCap="round";
+            cntx.fillStyle="#000";
+            cntx.fillRect(0,0,canvas.width,canvas.height);
+
+            $("#can").mousedown(function(canvas){
+                clic=true;
+                cntx.save();
+                xCoord=canvas.pageX-this.offsetLeft;
+                yCoord=canvas.pageY-this.offsetTop
+            });
+
+            $(document).mouseup(function(){
+                clic=false
+            });
+
+            $(document).click(function(){
+                clic=false
+            });
+
+            $("#can").mousemove(function(canvas){
+                if(clic==true){
+                    cntx.beginPath();
+                    cntx.moveTo(canvas.pageX-this.offsetLeft,canvas.pageY-this.offsetTop);
+                    cntx.lineTo(xCoord,yCoord);
+                    cntx.stroke();
+                    cntx.closePath();
+                    xCoord=canvas.pageX-this.offsetLeft;
+                    yCoord=canvas.pageY-this.offsetTop
+                }
+            });
+
+            $("#clr > div").click(function(){
+                cntx.strokeStyle=$(this).css("background-color");
+            });
+
+            $("#borrador").click(function(){
+                cntx.strokeStyle="#fff"
+            });
+
+
+            $("#limpiar").click(function(){
+                cntx.fillStyle="#000";
+                cntx.fillRect(0,0,canvas.width, canvas.height);
+                cntx.strokeStyle="white";
+                cntx.fillStyle="black";
+            })
+        })
+
+
+    </script>
+</head>
+<body>
+<div id="container">
+    <div id="holder">
+<canvas id="can" width="162.375" height="162.375">
+</canvas><br/>
+<button id="limpiar" href="#" class="btn btn-primary">Erase</button>
+    <button id="submit" onClick="sendImage()" class="btn btn-success">
+    Submit
+    </button>
+    </div>
+</div>
+<h4 id="result"></h4>
+</body>
+</html>
+
