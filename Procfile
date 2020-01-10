@@ -1,2 +1,1 @@
-web: python tensorproject/manage.py runserver 0.0.0.0:$PORT
-web: gunicorn tensorproject/tensorproject.wsgi:application
+web: gunicorn tensorproject.wsgi --log-file -
