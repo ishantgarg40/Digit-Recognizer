@@ -1,1 +1,1 @@
-web: gunicorn tensorproject.tensorproject.wsgi --log-file -
+web: gunicorn tensorproject.wsgi --log-file -
